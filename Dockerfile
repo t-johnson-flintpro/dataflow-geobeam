@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM apache/beam_python3.8_sdk:2.46.0
+FROM apache/beam_python3.11_sdk:2.55.0
 
 ARG WORKDIR=/pipeline
 RUN mkdir -p ${WORKDIR}
@@ -22,18 +22,18 @@ ENV CCACHE_DISABLE=1
 ENV PATH=$PATH:$WORKDIR/build/usr/local/bin
 
 RUN apt-get update -y \
-    && apt-get install libffi-dev g++ cmake automake pkg-config -y \
+    && apt-get install libffi-dev g++ gcc cmake automake pkg-config -y \
     && apt-get clean
 
-ENV CURL_VERSION 7.73.0
-RUN wget -q https://curl.haxx.se/download/curl-${CURL_VERSION}.tar.gz \
+ENV CURL_VERSION 8.7.1
+RUN wget -q "https://curl.se/download/curl-${CURL_VERSION}.tar.gz" \
     && tar -xzf curl-${CURL_VERSION}.tar.gz && cd curl-${CURL_VERSION} \
-    && ./configure --prefix=/usr/local \
+    && ./configure --prefix=/usr/local --with-openssl \
     && echo "building CURL ${CURL_VERSION}..." \
     && make --quiet -j$(nproc) && make --quiet install \
     && cd $WORKDIR && rm -rf curl-${CURL_VERSION}.tar.gz curl-${CURL_VERSION}
 
-ENV GEOS_VERSION 3.9.0
+ENV GEOS_VERSION 3.10.6
 RUN wget -q https://download.osgeo.org/geos/geos-${GEOS_VERSION}.tar.bz2 \
     && tar -xjf geos-${GEOS_VERSION}.tar.bz2  \
     && cd geos-${GEOS_VERSION} \
@@ -42,8 +42,8 @@ RUN wget -q https://download.osgeo.org/geos/geos-${GEOS_VERSION}.tar.bz2 \
     && make --quiet -j$(nproc) && make --quiet install \
     && cd $WORKDIR && rm -rf geos-${GEOS_VERSION}.tar.bz2 geos-${GEOS_VERSION}
 
-ENV SQLITE_VERSION 3330000
-ENV SQLITE_YEAR 2020
+ENV SQLITE_VERSION 3450200
+ENV SQLITE_YEAR 2024
 RUN wget -q https://sqlite.org/${SQLITE_YEAR}/sqlite-autoconf-${SQLITE_VERSION}.tar.gz \
     && tar -xzf sqlite-autoconf-${SQLITE_VERSION}.tar.gz && cd sqlite-autoconf-${SQLITE_VERSION} \
     && ./configure --prefix=/usr/local \
@@ -51,7 +51,7 @@ RUN wget -q https://sqlite.org/${SQLITE_YEAR}/sqlite-autoconf-${SQLITE_VERSION}.
     && make --quiet -j$(nproc) && make --quiet install \
     && cd $WORKDIR && rm -rf sqlite-autoconf-${SQLITE_VERSION}.tar.gz sqlite-autoconf-${SQLITE_VERSION}
 
-ENV PROJ_VERSION 9.1.0
+ENV PROJ_VERSION 9.4.0
 RUN wget -q https://download.osgeo.org/proj/proj-${PROJ_VERSION}.tar.gz \
     && tar -xzf proj-${PROJ_VERSION}.tar.gz \
     && cd proj-${PROJ_VERSION} && mkdir build && cd build \
@@ -62,17 +62,17 @@ RUN wget -q https://download.osgeo.org/proj/proj-${PROJ_VERSION}.tar.gz \
     && cmake --build . --target install \
     && cd $WORKDIR && rm -rf proj-${PROJ_VERSION}.tar.gz proj-${PROJ_VERSION}
 
-ENV OPENJPEG_VERSION 2.3.1
+ENV OPENJPEG_VERSION 2.5.2
 RUN wget -q -O openjpeg-${OPENJPEG_VERSION}.tar.gz https://github.com/uclouvain/openjpeg/archive/v${OPENJPEG_VERSION}.tar.gz \
     && tar -zxf openjpeg-${OPENJPEG_VERSION}.tar.gz \
     && cd openjpeg-${OPENJPEG_VERSION} \
     && mkdir build && cd build \
-    && cmake .. -DBUILD_THIRDPARTY:BOOL=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local \
+    && cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local \
     && echo "building openjpeg ${OPENJPEG_VERSION}..." \
     && make --quiet -j$(nproc) && make --quiet install \
     && cd $WORKDIR && rm -rf openjpeg-${OPENJPEG_VERSION}.tar.gz openjpeg-${OPENJPEG_VERSION}
 
-ENV GDAL_VERSION 3.5.2
+ENV GDAL_VERSION 3.8.5
 RUN wget -q https://download.osgeo.org/gdal/${GDAL_VERSION}/gdal-${GDAL_VERSION}.tar.gz \
     && tar -xzf gdal-${GDAL_VERSION}.tar.gz && cd gdal-${GDAL_VERSION} && mkdir build && cd build \
     && echo "building GDAL ${GDAL_VERSION}..." \
@@ -81,7 +81,7 @@ RUN wget -q https://download.osgeo.org/gdal/${GDAL_VERSION}/gdal-${GDAL_VERSION}
     && cmake --build . --target install \
     && cd $WORKDIR && rm -rf gdal-${GDAL_VERSION}.tar.gz gdal-${GDAL_VERSION}
 
-RUN apt-get remove g++ cmake automake pkg-config -y \
+RUN apt-get remove cmake automake pkg-config -y \
   && apt-get clean
 
 RUN cd $WORKDIR

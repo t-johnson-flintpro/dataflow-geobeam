@@ -20,11 +20,11 @@ from distutils.core import setup
 import geobeam
 
 REQUIRED_PACKAGES = [
-    'apache_beam[gcp]==2.46.0',
-    'fiona==1.9.3',
-    'shapely==1.8.5',
-    'rasterio==1.3.6',
-    'google-cloud-storage==2.5.0',
+    'apache_beam[gcp]~=2.55.0',
+    'fiona==1.9.6',
+    'shapely==2.0.3',
+    'rasterio==1.3.9',
+    'google-cloud-storage==2.16.0',
     'esridump==1.11.0'
 ]
 
